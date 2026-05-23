@@ -61,15 +61,15 @@ def show():
     st.sidebar.markdown("---")
     st.sidebar.markdown("### ⚙️ Pengaturan Model")
 
-    # Model terbaik (default)
-    best_model_key = "random_forest"
+    # Model terbaik (default) - berdasarkan hasil eksperimen notebook
+    best_model_key = "logistic_regression"
     st.sidebar.success(f"🏆 Model Terbaik: **{get_model_display_name(best_model_key)}**")
 
     # Dropdown pemilihan model
     selected_model_name = st.sidebar.selectbox(
         "Pilih Model Klasifikasi:",
         list(AVAILABLE_MODELS.keys()),
-        index=2,  # Default: Random Forest
+        index=0,  # Default: Logistic Regression (model terbaik)
         help="Pilih algoritma klasifikasi yang ingin digunakan untuk prediksi."
     )
     selected_model_key = AVAILABLE_MODELS[selected_model_name]
@@ -77,9 +77,9 @@ def show():
     # Opsi preprocessing
     scaler_type = st.sidebar.selectbox(
         "Metode Scaling:",
-        ["standard", "minmax", "robust"],
-        index=0,
-        help="StandardScaler (default), MinMaxScaler, atau RobustScaler"
+        ["minmax", "standard", "robust"],
+        index=0,  # Default: MinMaxScaler (kombinasi terbaik dari eksperimen)
+        help="MinMaxScaler (terbaik), StandardScaler, atau RobustScaler"
     )
 
     apply_smote = st.sidebar.checkbox("Terapkan SMOTE (Handle Imbalance)", value=True)
