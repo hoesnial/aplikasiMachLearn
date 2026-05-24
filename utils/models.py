@@ -27,7 +27,7 @@ AVAILABLE_MODELS = {
 
 # Model terbaik default per dataset
 BEST_MODEL_PER_DATASET = {
-    "stroke": "logistic_regression",
+    "stroke": "random_forest",
     "pasien_treatment": "random_forest",
     "bpjs": "random_forest",
     "jantung": "random_forest",

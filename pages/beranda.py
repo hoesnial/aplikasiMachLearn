@@ -44,6 +44,13 @@ def show():
         """)
 
         st.markdown("""
+        #### 🩸 Deteksi Diabetes XGBoost
+        Dataset: Diabetes Dataset
+        - Klasifikasi diabetes berbasis preprocessing otomatis dan XGBoost
+        - **Status: ✅ Aktif**
+        """)
+
+        st.markdown("""
         #### 💊 Pasien Treatment
         Dataset: Patient Treatment
         - Memprediksi kebutuhan treatment pasien

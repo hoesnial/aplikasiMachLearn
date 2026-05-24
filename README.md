@@ -10,11 +10,13 @@ aplikasiMachLearn/
 ├── requirements.txt                # Dependencies
 ├── README.md                       # Dokumentasi
 ├── dataset/                        # Folder kumpulan dataset
-│   └── healthcare-dataset-stroke-data.csv
+│   ├── healthcare-dataset-stroke-data.csv
+│   └── diabetes_dataset.csv        # Dataset diabetes untuk modul XGBoost
 ├── pages/                          # Halaman-halaman aplikasi
 │   ├── __init__.py
 │   ├── beranda.py                  # Halaman beranda
 │   ├── deteksi_stroke.py           # Deteksi stroke (AKTIF)
+│   ├── deteksi_diabetes.py         # Deteksi diabetes dengan XGBoost
 │   ├── deteksi_pasien_treatment.py # Deteksi pasien treatment
 │   ├── deteksi_bpjs.py             # Deteksi BPJS
 │   ├── deteksi_jantung.py          # Deteksi penyakit jantung
@@ -23,6 +25,7 @@ aplikasiMachLearn/
 ├── utils/                          # Modul utilitas
 │   ├── __init__.py
 │   ├── preprocessing.py            # Fungsi preprocessing data
+│   ├── diabetes_xgb.py             # Pipeline preprocessing + XGBoost diabetes
 │   └── models.py                   # Fungsi model ML
 └── models/                         # Folder untuk menyimpan model (opsional)
     └── __init__.py
@@ -55,11 +58,12 @@ aplikasiMachLearn/
 ## 📋 Halaman Deteksi
 
 1. **Deteksi Stroke** ✅ - Healthcare Stroke Dataset
-2. **Pasien Treatment** 🔜 - Dataset belum ditambahkan
-3. **BPJS** 🔜 - Dataset belum ditambahkan
-4. **Penyakit Jantung** 🔜 - Dataset belum ditambahkan
-5. **Penyakit Liver** 🔜 - Dataset belum ditambahkan
-6. **Lainnya** 🔜 - Dataset belum ditentukan
+2. **Deteksi Diabetes XGBoost** ✅ - Diabetes Dataset
+3. **Pasien Treatment** 🔜 - Dataset belum ditambahkan
+4. **BPJS** 🔜 - Dataset belum ditambahkan
+5. **Penyakit Jantung** 🔜 - Dataset belum ditambahkan
+6. **Penyakit Liver** 🔜 - Dataset belum ditambahkan
+7. **Lainnya** 🔜 - Dataset belum ditentukan
 
 ## 📝 Cara Menambahkan Dataset Baru
 
@@ -67,3 +71,20 @@ aplikasiMachLearn/
 2. Buat fungsi preprocessing di `utils/preprocessing.py`
 3. Implementasikan halaman di `pages/deteksi_xxx.py`
 4. Ikuti pola yang sudah ada di `deteksi_stroke.py`
+
+## 🩸 Modul XGBoost Diabetes
+
+Modul diabetes sudah dipisahkan agar tidak mengganggu halaman lain.
+
+- File utilitas: `utils/diabetes_xgb.py`
+- File halaman: `pages/deteksi_diabetes.py`
+- Dataset: `dataset/diabetes_dataset.csv`
+- Training dilakukan beberapa kali dengan random_state berbeda untuk memilih model terbaik.
+- Model terbaik tersimpan otomatis: `models/diabetes_xgb_model.joblib`
+- Jumlah percobaan dapat diubah dari sidebar: 5x, 10x, 15x, atau 20x
+
+Jika dependency XGBoost belum ada, install dengan:
+
+```bash
+pip install xgboost
+```

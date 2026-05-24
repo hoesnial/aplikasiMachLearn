@@ -55,21 +55,21 @@ def show():
     st.markdown("---")
 
     # Tabs untuk navigasi dalam halaman
-    tab1, tab2, tab3, tab4 = st.tabs(["🔮 Prediksi", "📊 Evaluasi Model", "📈 Eksplorasi Data", "🔬 Analisis Pemilihan Model"])
+    tab1, tab2, tab3 = st.tabs(["🔮 Prediksi", "📊 Evaluasi Model", "📈 Eksplorasi Data"])
 
     # Sidebar untuk pemilihan model
     st.sidebar.markdown("---")
     st.sidebar.markdown("### ⚙️ Pengaturan Model")
 
-    # Model terbaik (default) - berdasarkan hasil eksperimen notebook
-    best_model_key = "logistic_regression"
+    # Model terbaik (default)
+    best_model_key = "random_forest"
     st.sidebar.success(f"🏆 Model Terbaik: **{get_model_display_name(best_model_key)}**")
 
     # Dropdown pemilihan model
     selected_model_name = st.sidebar.selectbox(
         "Pilih Model Klasifikasi:",
         list(AVAILABLE_MODELS.keys()),
-        index=0,  # Default: Logistic Regression (model terbaik)
+        index=2,  # Default: Random Forest
         help="Pilih algoritma klasifikasi yang ingin digunakan untuk prediksi."
     )
     selected_model_key = AVAILABLE_MODELS[selected_model_name]
@@ -77,9 +77,9 @@ def show():
     # Opsi preprocessing
     scaler_type = st.sidebar.selectbox(
         "Metode Scaling:",
-        ["minmax", "standard", "robust"],
-        index=0,  # Default: MinMaxScaler (kombinasi terbaik dari eksperimen)
-        help="MinMaxScaler (terbaik), StandardScaler, atau RobustScaler"
+        ["standard", "minmax", "robust"],
+        index=0,
+        help="StandardScaler (default), MinMaxScaler, atau RobustScaler"
     )
 
     apply_smote = st.sidebar.checkbox("Terapkan SMOTE (Handle Imbalance)", value=True)
@@ -293,104 +293,3 @@ def show():
         # Statistik deskriptif
         st.markdown("#### 📊 Statistik Deskriptif")
         st.dataframe(df.describe().round(2), use_container_width=True)
-
-    # ==================== TAB 4: ANALISIS PEMILIHAN MODEL ====================
-    with tab4:
-        st.markdown("### 🔬 Analisis Pemilihan Model Terbaik")
-        st.markdown("---")
-
-        st.markdown("""
-        #### 🏆 Mengapa Logistic Regression Dipilih Sebagai Model Terbaik?
-
-        Berdasarkan **60 eksperimen** yang dilakukan dengan kombinasi 5 model × 3 scaler × 4 resampler,
-        hasil menunjukkan bahwa **Logistic Regression** dengan **MinMaxScaler + SMOTE** menghasilkan
-        performa terbaik berdasarkan metrik **F1-Score**.
-
-        ---
-
-        #### 📊 Hasil Eksperimen Model Terbaik
-
-        | Metrik | Nilai |
-        |--------|-------|
-        | **Model** | Logistic Regression |
-        | **Scaler** | MinMaxScaler |
-        | **Resampler** | SMOTE |
-        | **Accuracy** | 0.7407 |
-        | **Precision** | 0.1356 |
-        | **Recall** | 0.8000 |
-        | **F1-Score** | 0.2319 |
-        | **AUC-ROC** | 0.8383 |
-
-        ---
-
-        #### ❌ Mengapa Bukan Random Forest?
-
-        Meskipun **Random Forest** merupakan model yang sangat populer dan powerful untuk klasifikasi,
-        pada kasus prediksi stroke ini Random Forest **tidak dipilih** sebagai model terbaik karena
-        beberapa alasan berikut:
-
-        1. **Bias terhadap kelas mayoritas**: Random Forest cenderung menghasilkan **Accuracy tinggi**
-           (>93%) namun dengan **Recall sangat rendah** terhadap kelas stroke (minoritas). Artinya,
-           model ini sering gagal mendeteksi pasien yang sebenarnya berisiko stroke.
-
-        2. **F1-Score lebih rendah**: Dalam konteks imbalanced classification, F1-Score adalah metrik
-           yang lebih relevan dibanding Accuracy. Random Forest menghasilkan F1-Score yang lebih rendah
-           dibanding Logistic Regression pada dataset ini.
-
-        3. **Overfitting pada data training**: Random Forest dengan 100 trees cenderung overfitting
-           pada data yang sudah di-resample (SMOTE), sehingga generalisasi ke data test kurang optimal
-           untuk kelas minoritas.
-
-        4. **Trade-off Precision vs Recall**: Untuk konteks **screening medis**, kita lebih mengutamakan
-           **Recall tinggi** (meminimalkan False Negative) daripada Precision tinggi. Lebih baik
-           "salah mendeteksi" seseorang berisiko stroke (False Positive) daripada "melewatkan" pasien
-           yang benar-benar berisiko (False Negative). Logistic Regression memberikan Recall **0.80**
-           yang jauh lebih baik.
-
-        ---
-
-        #### ✅ Keunggulan Logistic Regression pada Kasus Ini
-
-        1. **Recall tertinggi (0.80)**: Mampu mendeteksi 80% pasien yang benar-benar berisiko stroke.
-           Ini sangat penting dalam konteks medis.
-
-        2. **AUC-ROC tinggi (0.8383)**: Menunjukkan kemampuan diskriminasi yang baik antara kelas
-           positif dan negatif.
-
-        3. **Interpretabilitas**: Logistic Regression memberikan koefisien yang mudah diinterpretasi,
-           sehingga dokter dapat memahami faktor-faktor yang berkontribusi terhadap prediksi.
-
-        4. **Stabilitas**: Model linear cenderung lebih stabil dan tidak mudah overfitting pada
-           dataset kecil atau imbalanced.
-
-        5. **Kalibrasi probabilitas**: Logistic Regression menghasilkan probabilitas yang terkalibrasi
-           dengan baik, sehingga output probabilitas dapat dipercaya untuk pengambilan keputusan klinis.
-
-        ---
-
-        #### 📋 Perbandingan Random Forest vs Logistic Regression
-
-        | Aspek | Random Forest | Logistic Regression |
-        |-------|---------------|---------------------|
-        | Accuracy | ✅ Tinggi (~93%) | ⚠️ Lebih rendah (~74%) |
-        | Recall (Stroke) | ❌ Rendah (~16-20%) | ✅ Tinggi (~80%) |
-        | F1-Score | ❌ Lebih rendah | ✅ Lebih tinggi (0.2319) |
-        | AUC-ROC | ⚠️ Kompetitif | ✅ Tertinggi (0.8383) |
-        | Interpretabilitas | ❌ Black-box | ✅ Transparan |
-        | Risiko Medis | ❌ Banyak False Negative | ✅ Meminimalkan False Negative |
-
-        ---
-
-        #### 🎯 Kesimpulan
-
-        > Dalam konteks **screening medis** untuk prediksi stroke, **Logistic Regression** dengan
-        > **MinMaxScaler + SMOTE** adalah pilihan terbaik karena mengutamakan **Recall** (sensitivitas)
-        > yang tinggi. Meskipun Random Forest memiliki Accuracy lebih tinggi, metrik tersebut
-        > menyesatkan pada dataset yang sangat imbalanced (rasio 1:19). Model yang "akurat" tapi
-        > gagal mendeteksi pasien berisiko stroke justru berbahaya dalam konteks klinis.
-        >
-        > **Kualitas preprocessing memiliki pengaruh yang setara atau bahkan lebih besar dibandingkan
-        > pemilihan algoritma.** Dataset yang sama dengan preprocessing berbeda dapat menghasilkan
-        > perbedaan performa hingga 20-30%.
-        """)
-
