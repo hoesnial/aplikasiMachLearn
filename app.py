@@ -88,8 +88,8 @@ elif page_key == "stroke":
     from pages import deteksi_stroke
     deteksi_stroke.show()
 elif page_key == "diabetes_xgb":
-    from pages import deteksi_diabetes
-    deteksi_diabetes.show()
+    from pages import deteksi_diabetes_praktikum
+    deteksi_diabetes_praktikum.show()
 elif page_key == "pasien_treatment":
     from pages import deteksi_pasien_treatment
     deteksi_pasien_treatment.show()
