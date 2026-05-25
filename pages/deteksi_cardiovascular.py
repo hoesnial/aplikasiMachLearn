@@ -106,14 +106,19 @@ def show():
     st.sidebar.markdown("---")
     st.sidebar.markdown("### ⚙️ Pengaturan Model")
 
-    # Default base method = Extra Trees Classifier (sesuai instruksi tugas)
-    best_model_key = "extra_trees"
+    # Model terbaik empiris dari eksperimen 60 kombinasi = XGBoost (ROC AUC & Accuracy tertinggi)
+    # Extra Trees adalah base method sesuai instruksi tugas, bukan model terbaik empiris
+    best_model_key = "xgboost"
     st.sidebar.success(
-        f"🏆 Base Method (sesuai tugas): **{get_model_display_name(best_model_key)}**"
+        f"🏆 Model Terbaik (empiris): **{get_model_display_name(best_model_key)}**"
+    )
+    st.sidebar.info(
+        "📌 Base method tugas: **Extra Trees Classifier** "
+        "(tersedia di dropdown untuk perbandingan)"
     )
 
     model_names = list(AVAILABLE_MODELS.keys())
-    default_index = model_names.index("Extra Trees")
+    default_index = model_names.index("XGBoost")
     selected_model_name = st.sidebar.selectbox(
         "Pilih Model Klasifikasi:",
         model_names,
@@ -408,98 +413,136 @@ def show():
 
     # ==================== TAB 4: ANALISIS PEMILIHAN MODEL ====================
     with tab4:
-        st.markdown(
-            "### 🔬 Analisis Pemilihan Model: Extra Trees Classifier"
-        )
+        st.markdown("### 🔬 Analisis Pemilihan Model Terbaik")
         st.markdown("---")
 
-        st.markdown(
-            """
-        #### 📐 Metodologi
-        Pemilihan base method **Extra Trees Classifier** mengikuti
-        **instruksi tugas** dan tetap divalidasi melalui eksperimen
-        sistematis pada notebook `Pembangunan_Model_Preprocessing.ipynb`:
-        **5 model × 3 scaler × 4 resampler = 60 kombinasi**, lalu
-        5-fold cross validation pada konfigurasi terbaik dari setiap model.
+        st.markdown("""
+        #### 📐 Metodologi Eksperimen
+        Pemilihan model dilakukan melalui eksperimen sistematis pada notebook
+        `Pembangunan_Model_Preprocessing.ipynb`:
+        **5 model × 3 scaler × 4 resampler = 60 kombinasi**, diikuti
+        5-fold cross validation dan hyperparameter tuning.
 
-        Kriteria validasi:
-        1. **F1-Score** pada test set — penting pada konteks medis untuk
-           menjaga keseimbangan Precision–Recall.
-        2. **ROC AUC** pada test set — kemampuan diskriminasi di berbagai
-           threshold.
-        3. **Stabilitas 5-fold Cross Validation** — deviasi standar kecil =
-           generalisasi konsisten.
-        4. **Efisiensi training/inference** untuk aplikasi web.
+        Kriteria evaluasi:
+        1. **ROC AUC** — kemampuan diskriminasi di seluruh threshold (metrik
+           utama untuk deteksi penyakit).
+        2. **F1-Score** — keseimbangan Precision–Recall.
+        3. **Accuracy** — proporsi prediksi benar secara keseluruhan.
+        4. **Stabilitas CV** — deviasi standar kecil = generalisasi konsisten.
+        """)
+
+        st.markdown("---")
+        st.markdown("#### 🏆 Hasil Eksperimen Empiris (dari tabel perbandingan)")
+
+        # Tabel hasil aktual dari eksperimen
+        empirical_data = {
+            "Model": [
+                "XGBoost ⭐",
+                "Logistic Regression",
+                "Extra Trees (base method tugas)",
+                "W-KNN (Weighted KNN)",
+                "Decision Tree",
+            ],
+            "Accuracy": ["72.93%", "72.63%", "70.33%", "69.70%", "63.23%"],
+            "Precision": ["73.65%", "73.45%", "69.70%", "69.32%", "62.77%"],
+            "Recall": ["71.19%", "70.66%", "71.66%", "70.39%", "64.57%"],
+            "F1-Score": ["72.40%", "72.03%", "70.67%", "69.85%", "63.66%"],
+            "ROC AUC": ["79.72%", "79.47%", "76.06%", "74.32%", "63.20%"],
+        }
+        st.dataframe(
+            pd.DataFrame(empirical_data),
+            use_container_width=True,
+            hide_index=True,
+        )
+
+        st.markdown("---")
+        st.markdown("""
+        #### ✅ Mengapa XGBoost adalah model terbaik empiris?
+
+        Dari tabel di atas, **XGBoost unggul di hampir semua metrik**:
+
+        | Metrik | XGBoost | Extra Trees | Selisih |
+        |--------|---------|-------------|---------|
+        | ROC AUC | **79.72%** | 76.06% | +3.66 poin |
+        | Accuracy | **72.93%** | 70.33% | +2.60 poin |
+        | F1-Score | **72.40%** | 70.67% | +1.73 poin |
+        | Precision | **73.65%** | 69.70% | +3.95 poin |
+
+        **Alasan teknis XGBoost unggul pada dataset cardio ini:**
+
+        1. **Gradient boosting membangun pohon secara sekuensial** — setiap
+           pohon baru fokus memperbaiki kesalahan pohon sebelumnya. Ini
+           sangat efektif pada dataset tabular medis dengan banyak fitur
+           yang saling berinteraksi (umur × tekanan darah × kolesterol).
+
+        2. **Regularisasi L1/L2 bawaan** — XGBoost punya parameter `reg_alpha`
+           dan `reg_lambda` yang mencegah overfitting, sehingga generalisasi
+           ke test set lebih baik dibanding Extra Trees yang tidak punya
+           regularisasi eksplisit.
+
+        3. **ROC AUC 79.72% vs 76.06%** — selisih 3.66 poin pada ROC AUC
+           sangat signifikan dalam konteks medis. Artinya XGBoost jauh lebih
+           baik dalam membedakan pasien cardio vs non-cardio di berbagai
+           threshold probabilitas.
+
+        4. **Dataset cardio berukuran besar (70k baris)** — XGBoost dioptimasi
+           untuk dataset besar dengan implementasi yang efisien (histogram-based
+           split finding), sehingga bisa mengeksploitasi lebih banyak pola.
 
         ---
 
-        #### 🏆 Posisi Setiap Model pada Dataset Cardio
+        #### 📌 Catatan tentang Extra Trees Classifier
 
-        - **Extra Trees Classifier (base method)**: ensemble pohon dengan
-          randomisasi split tinggi. Sangat cocok untuk fitur numerik
-          medis dengan boundary non-linear (mis. tekanan darah × umur ×
-          BMI). Mendukung feature importance untuk interpretasi klinis.
-        - **XGBoost**: gradient boosting kuat pada data tabular medis,
-          biasanya bersaing ketat dengan ensemble tree-based.
-        - **W-KNN**: KNN dengan bobot jarak, sensitif pada scaling dan
-          inference relatif lambat pada 70k baris.
-        - **Decision Tree**: tunggal, varians lebih tinggi dibanding
-          ensemble.
-        - **Logistic Regression**: linear, tertinggal karena interaksi
-          antar fitur (umur × tekanan darah) tidak ditangkap eksplisit.
+        Extra Trees adalah **base method sesuai instruksi tugas**, bukan
+        model terbaik secara empiris pada dataset ini. Perbedaan utamanya:
 
-        ---
+        - Extra Trees memilih **split secara acak** (tidak mencari split
+          terbaik), sehingga lebih cepat tapi kurang akurat.
+        - Tanpa regularisasi, Extra Trees lebih rentan terhadap noise pada
+          fitur yang kurang informatif (mis. `smoke`, `alco`, `active`
+          yang korelasinya rendah dengan target).
+        - Pada dataset cardio yang sudah seimbang 50/50, keunggulan
+          Extra Trees dalam menangani imbalance tidak relevan.
 
-        #### ✅ Mengapa Extra Trees Classifier?
-
-        1. **Sesuai instruksi tugas** — base method adalah **Extra Trees
-           Classifier** (bukan Regressor, karena task ini binary
-           classification).
-        2. **Performa kompetitif** pada F1 dan ROC AUC, dengan deviasi
-           standar CV yang kecil (generalisasi konsisten).
-        3. **Cocok untuk relasi non-linear** Tinggi/Berat × Tekanan Darah
-           × Umur, yang merupakan jantung dari prediksi cardio.
-        4. **Lebih cepat dari Random Forest** karena pemilihan split
-           bersifat acak, dan **lebih scalable dari W-KNN** untuk
-           inference besar.
-        5. **Memberikan feature importance**, mendukung interpretasi
-           klinis yang penting di dunia medis.
+        Extra Trees tetap tersedia di dropdown untuk perbandingan dan
+        sebagai pemenuhan instruksi tugas.
 
         ---
 
-        #### 🛠️ Tahap Pipeline yang Diimplementasi
+        #### ❌ Mengapa bukan Logistic Regression?
+
+        Logistic Regression sebenarnya sangat kompetitif (ROC AUC 79.47%,
+        hampir setara XGBoost). Namun XGBoost dipilih karena:
+        - ROC AUC lebih tinggi 0.25 poin
+        - Precision lebih tinggi 0.20 poin
+        - Mampu menangkap interaksi non-linear antar fitur secara otomatis
+          tanpa perlu feature engineering manual tambahan
+
+        ---
+
+        #### 🛠️ Pipeline yang Diimplementasi
 
         1. **Data Collection** — load `cardio_train.csv` (70.000 baris).
-        2. **Data Preprocessing** — drop id, konversi umur ke tahun,
-           filter outlier fisiologis (BP, height, weight), deduplikasi.
-        3. **EDA** — distribusi target, histogram per kelas, boxplot
-           tekanan darah dan berat badan.
-        4. **Feature Engineering** — `bmi`, `pulse_pressure`,
-           `map_pressure`, `bp_category`, `age_group`, plus encoding
-           kategorikal.
+        2. **Preprocessing** — drop id, konversi umur ke tahun, filter
+           outlier fisiologis (BP, height, weight), deduplikasi.
+        3. **EDA** — distribusi target, histogram per kelas, boxplot.
+        4. **Feature Engineering** — `bmi`, `pulse_pressure`, `map_pressure`,
+           `bp_category`, `age_group`, plus encoding.
         5. **Split Data** — 80/20 stratified.
-        6. **Model Training** — 5 algoritma × 3 scaler × 4 resampler = 60
-           kombinasi.
-        7. **Evaluation** — Accuracy, Precision, Recall, F1, ROC AUC,
-           plus 5-fold CV.
-        8. **Hyperparameter Tuning** — RandomizedSearchCV pada Extra
-           Trees Classifier (base method).
-        9. **Interpretation** — feature importance, confusion matrix,
-           ROC curve.
+        6. **Eksperimen** — 5 model × 3 scaler × 4 resampler = 60 kombinasi.
+        7. **Evaluasi** — Accuracy, Precision, Recall, F1, ROC AUC + 5-fold CV.
+        8. **Hyperparameter Tuning** — RandomizedSearchCV pada Extra Trees
+           (base method tugas) dan XGBoost (model terbaik empiris).
+        9. **Interpretasi** — feature importance, confusion matrix, ROC curve.
 
         ---
 
         #### 🎯 Kesimpulan
 
-        > **Extra Trees Classifier** dipilih sebagai base method sesuai
-        > instruksi tugas, dan validasi empiris memperlihatkan model ini
-        > kompetitif di seluruh kriteria objektif: F1 test set, ROC AUC
-        > test set, mean F1 5-fold CV dengan deviasi standar kecil, dan
-        > peningkatan/konsistensi setelah hyperparameter tuning. Hasil
-        > ini juga mengkonfirmasi bahwa **kualitas preprocessing dan
-        > feature engineering memiliki pengaruh signifikan** terhadap
-        > performa setiap algoritma — terutama filter outlier tekanan
-        > darah dan fitur turunan `pulse_pressure`, `map_pressure`, dan
-        > `bmi` yang sangat relevan secara klinis.
-        """
-        )
+        > **XGBoost adalah model terbaik secara empiris** pada dataset
+        > cardiovascular ini, unggul di ROC AUC (79.72%), Accuracy (72.93%),
+        > F1-Score (72.40%), dan Precision (73.65%). **Extra Trees Classifier**
+        > digunakan sebagai base method sesuai instruksi tugas dan tetap
+        > tersedia untuk perbandingan, namun secara objektif performanya
+        > di bawah XGBoost dan Logistic Regression pada dataset ini.
+        """)
