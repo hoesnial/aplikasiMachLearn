@@ -37,9 +37,18 @@ def show():
 
     with col1:
         st.markdown("""
-        #### 🧠 Deteksi Stroke
-        Dataset: Healthcare Stroke Data
-        - Memprediksi risiko stroke berdasarkan data klinis pasien
+        #### ❤️ Deteksi Penyakit Kardiovaskular
+        Dataset: Cardiovascular Disease (`cardio_train.csv`, 70.000 pasien)
+        - Memprediksi risiko penyakit kardiovaskular berdasarkan umur,
+          tekanan darah, kolesterol, BMI, dan gaya hidup
+        - Base method: **Extra Trees Classifier**
+        - **Status: ✅ Aktif**
+        """)
+
+        st.markdown("""
+        #### 🩸 Deteksi Diabetes XGBoost
+        Dataset: Diabetes Dataset
+        - Klasifikasi diabetes berbasis preprocessing otomatis dan XGBoost
         - **Status: ✅ Aktif**
         """)
 
