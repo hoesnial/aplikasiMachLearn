@@ -37,9 +37,11 @@ def show():
 
     with col1:
         st.markdown("""
-        #### 🧠 Deteksi Stroke
-        Dataset: Healthcare Stroke Data
-        - Memprediksi risiko stroke berdasarkan data klinis pasien
+        #### ❤️ Deteksi Penyakit Kardiovaskular
+        Dataset: Cardiovascular Disease (`cardio_train.csv`)
+        - Memprediksi risiko penyakit kardiovaskular (0 = tidak, 1 = ya)
+          berdasarkan umur, gender, tekanan darah, kolesterol, glukosa,
+          BMI, dan gaya hidup
         - **Status: ✅ Aktif**
         """)
 
@@ -91,9 +93,9 @@ def show():
         st.markdown("""
         | No | Algoritma | Deskripsi |
         |----|-----------|-----------|
-        | 1 | **Logistic Regression** | Model linear untuk klasifikasi biner |
+        | 1 | **Logistic Regression** | Model linear untuk klasifikasi |
         | 2 | **Decision Tree** | Model berbasis pohon keputusan |
-        | 3 | **Random Forest** | Ensemble dari banyak decision tree |
+        | 3 | **Extra Trees** ⭐ | Base method - ensemble pohon yang sangat acak |
         """)
 
     with methods_col2:

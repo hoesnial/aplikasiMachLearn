@@ -46,7 +46,7 @@ st.sidebar.markdown("---")
 # Daftar halaman
 pages = {
     "🏠 Beranda": "beranda",
-    "🧠 Deteksi Stroke": "stroke",
+    "❤️ Deteksi Penyakit Kardiovaskular": "cardiovascular",
     "💊 Deteksi Pasien Treatment": "pasien_treatment",
     "🏥 Deteksi BPJS": "bpjs",
     "❤️ Deteksi Penyakit Jantung": "jantung",
@@ -72,7 +72,7 @@ st.sidebar.markdown("### 🤖 Model Tersedia")
 st.sidebar.markdown("""
 1. Logistic Regression
 2. Decision Tree
-3. Random Forest
+3. Extra Trees (base method)
 4. W-KNN (Weighted KNN)
 5. XGBoost
 """)
@@ -83,9 +83,9 @@ page_key = pages[selected_page]
 if page_key == "beranda":
     from pages import beranda
     beranda.show()
-elif page_key == "stroke":
-    from pages import deteksi_stroke
-    deteksi_stroke.show()
+elif page_key == "cardiovascular":
+    from pages import deteksi_cardiovascular
+    deteksi_cardiovascular.show()
 elif page_key == "pasien_treatment":
     from pages import deteksi_pasien_treatment
     deteksi_pasien_treatment.show()
