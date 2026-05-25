@@ -46,8 +46,9 @@ st.sidebar.markdown("---")
 # Daftar halaman
 pages = {
     "🏠 Beranda": "beranda",
-    "🧠 Deteksi Stroke": "stroke",
-    "🩸 Deteksi Diabetes XGBoost": "diabetes_xgb",
+    "❤️ Deteksi Penyakit Kardiovaskular": "cardiovascular",
+    "🩸 Deteksi Diabetes (XGBoost)": "diabetes_xgb",
+    "🩸 Deteksi Diabetes (Eksperimen)": "diabetes_exp",
     "💊 Deteksi Pasien Treatment": "pasien_treatment",
     "🏥 Deteksi BPJS": "bpjs",
     "❤️ Deteksi Penyakit Jantung": "jantung",
@@ -73,9 +74,10 @@ st.sidebar.markdown("### 🤖 Model Tersedia")
 st.sidebar.markdown("""
 1. Logistic Regression
 2. Decision Tree
-3. Random Forest
-4. W-KNN (Weighted KNN)
-5. XGBoost
+3. Extra Trees (Cardiovascular)
+4. Random Forest (Diabetes)
+5. W-KNN (Weighted KNN)
+6. XGBoost
 """)
 
 # Routing halaman
@@ -84,12 +86,15 @@ page_key = pages[selected_page]
 if page_key == "beranda":
     from pages import beranda
     beranda.show()
-elif page_key == "stroke":
-    from pages import deteksi_stroke
-    deteksi_stroke.show()
+elif page_key == "cardiovascular":
+    from pages import deteksi_cardiovascular
+    deteksi_cardiovascular.show()
 elif page_key == "diabetes_xgb":
     from pages import deteksi_diabetes_praktikum
     deteksi_diabetes_praktikum.show()
+elif page_key == "diabetes_exp":
+    from pages import deteksi_diabetes
+    deteksi_diabetes.show()
 elif page_key == "pasien_treatment":
     from pages import deteksi_pasien_treatment
     deteksi_pasien_treatment.show()
