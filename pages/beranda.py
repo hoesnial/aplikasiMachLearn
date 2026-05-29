@@ -61,10 +61,10 @@ def show():
 
     with col2:
         st.markdown("""
-        #### 🏥 Deteksi BPJS
-        Dataset: BPJS
-        - Analisis dan prediksi terkait BPJS
-        - **Status: 🔜 Segera**
+        #### 🏥 Deteksi Scabies
+        Dataset: Scabies Data
+        - Analisis dan prediksi terkait scabies
+        - **Status: Status: ✅ Aktif***
         """)
 
         st.markdown("""

@@ -11,9 +11,17 @@ Halaman aktif saat ini:
 | 🩸 **Deteksi Diabetes (XGBoost)** | `diabetes_dataset.csv` | **XGBoost** |
 | 🩸 **Deteksi Diabetes (Eksperimen)** | `diabetes_dataset.csv` | XGBoost + analisis eksperimen |
 
-Halaman placeholder (siap diisi developer lain):
-`deteksi_jantung`, `deteksi_liver`, `deteksi_pasien_treatment`,
-`deteksi_bpjs`, `deteksi_lainnya`. Lihat
+Halaman aktif/dalam pengembangan tambahan:
+
+| Halaman | Status | Dataset |
+|---------|--------|---------|
+| 🏥 **Deteksi Scabies** | Decision Tree (Rahman) | `scabies-sapi-diperluas.csv` |
+| 💊 **Deteksi Pasien Treatment** | Placeholder | – |
+| ❤️ **Deteksi Penyakit Jantung** | Placeholder | – |
+| 🫁 **Deteksi Penyakit Liver** | Placeholder | – |
+| 📋 **Deteksi Lainnya** | Placeholder | – |
+
+Lihat
 [Panduan Menambah Halaman Deteksi Baru](#-panduan-menambah-halaman-deteksi-baru-untuk-developer)
 di bawah.
 
@@ -25,11 +33,13 @@ aplikasiMachLearn/
 ├── requirements.txt                             # Dependencies
 ├── README.md                                    # Dokumentasi
 ├── Pembangunan_Model_Preprocessing.ipynb        # Notebook eksperimen Cardiovascular
+├── Pembangunan_Model_Preprocessing_Decission_Tree.ipynb # Notebook eksperimen Scabies (Decision Tree)
 ├── xgboost_pembangunan_model_preprocessing.ipynb# Notebook eksperimen Diabetes
 ├── dataset/
 │   ├── cardio_train.csv                         # Cardiovascular dataset (70k baris)
 │   ├── diabetes_dataset.csv                     # Diabetes dataset
-│   └── patient_treatment.csv                    # Patient treatment dataset
+│   ├── patient_treatment.csv                    # Patient treatment dataset
+│   └── scabies-sapi-diperluas.csv               # Scabies dataset
 ├── models/
 │   ├── diabetes_xgb_model.joblib                # Model XGBoost diabetes (precomputed)
 │   └── diabetes_xgb_praktikum.joblib            # Model praktikum diabetes
@@ -39,8 +49,8 @@ aplikasiMachLearn/
 │   ├── deteksi_cardiovascular.py                # Aktif (Extra Trees Classifier)
 │   ├── deteksi_diabetes.py                      # Aktif (XGBoost eksperimen)
 │   ├── deteksi_diabetes_praktikum.py            # Aktif (XGBoost praktikum)
+│   ├── deteksi_scabies.py                       # Aktif (Decision Tree)
 │   ├── deteksi_pasien_treatment.py              # Placeholder
-│   ├── deteksi_bpjs.py                          # Placeholder
 │   ├── deteksi_jantung.py                       # Placeholder
 │   ├── deteksi_liver.py                         # Placeholder
 │   └── deteksi_lainnya.py                       # Placeholder
@@ -260,8 +270,8 @@ elif page_key == "<key>":
 
 Konvensi `key` adalah lowercase tanpa spasi (mis. `liver`, `jantung`,
 `stroke`). Halaman placeholder `pages/deteksi_jantung.py`,
-`deteksi_liver.py`, `deteksi_pasien_treatment.py`, `deteksi_bpjs.py`,
-dan `deteksi_lainnya.py` sudah ada — Anda bisa langsung **mengganti
+`deteksi_liver.py`, `deteksi_pasien_treatment.py`, dan
+`deteksi_lainnya.py` sudah ada — Anda bisa langsung **mengganti
 isinya** tanpa perlu edit `app.py`.
 
 #### 5. (Opsional) Tambah model baru
