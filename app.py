@@ -48,7 +48,7 @@ pages = {
     "🏠 Beranda": "beranda",
     "🧠 Deteksi Stroke": "stroke",
     "💊 Deteksi Pasien Treatment": "pasien_treatment",
-    "🏥 Deteksi BPJS": "bpjs",
+    "🏥 Deteksi Penyakit Scabies": "scabies",
     "❤️ Deteksi Penyakit Jantung": "jantung",
     "🫁 Deteksi Penyakit Liver": "liver",
     "📋 Deteksi Lainnya": "lainnya",
@@ -89,9 +89,9 @@ elif page_key == "stroke":
 elif page_key == "pasien_treatment":
     from pages import deteksi_pasien_treatment
     deteksi_pasien_treatment.show()
-elif page_key == "bpjs":
-    from pages import deteksi_bpjs
-    deteksi_bpjs.show()
+elif page_key == "scabies":
+    from pages import deteksi_scabies
+    deteksi_scabies.show()
 elif page_key == "jantung":
     from pages import deteksi_jantung
     deteksi_jantung.show()
