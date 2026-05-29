@@ -10,6 +10,7 @@ Halaman aktif saat ini:
 | ❤️ **Deteksi Penyakit Kardiovaskular** | `cardio_train.csv` (70.000 pasien) | **Extra Trees Classifier** |
 | 🩸 **Deteksi Diabetes (XGBoost)** | `diabetes_dataset.csv` | **XGBoost** |
 | 🩸 **Deteksi Diabetes (Eksperimen)** | `diabetes_dataset.csv` | XGBoost + analisis eksperimen |
+| 🧪 **Deteksi Penyakit Ginjal Kronik** | `penyakit_ginjal_kronik.csv` (400 pasien) | **W-KNN (Weighted KNN)** |
 
 Halaman aktif/dalam pengembangan tambahan:
 
@@ -34,11 +35,13 @@ aplikasiMachLearn/
 ├── README.md                                    # Dokumentasi
 ├── Pembangunan_Model_Preprocessing.ipynb        # Notebook eksperimen Cardiovascular
 ├── Pembangunan_Model_Preprocessing_Decission_Tree.ipynb # Notebook eksperimen Scabies (Decision Tree)
+├── Pembangunan_Model_Preprocessing_CKD_WKNN.ipynb # Notebook eksperimen Ginjal Kronik (W-KNN)
 ├── xgboost_pembangunan_model_preprocessing.ipynb# Notebook eksperimen Diabetes
 ├── dataset/
 │   ├── cardio_train.csv                         # Cardiovascular dataset (70k baris)
 │   ├── diabetes_dataset.csv                     # Diabetes dataset
 │   ├── patient_treatment.csv                    # Patient treatment dataset
+│   ├── penyakit_ginjal_kronik.csv               # Ginjal Kronik dataset (400 baris)
 │   └── scabies-sapi-diperluas.csv               # Scabies dataset
 ├── models/
 │   ├── diabetes_xgb_model.joblib                # Model XGBoost diabetes (precomputed)
@@ -49,11 +52,19 @@ aplikasiMachLearn/
 │   ├── deteksi_cardiovascular.py                # Aktif (Extra Trees Classifier)
 │   ├── deteksi_diabetes.py                      # Aktif (XGBoost eksperimen)
 │   ├── deteksi_diabetes_praktikum.py            # Aktif (XGBoost praktikum)
+│   ├── deteksi_ginjal_kronik.py                 # Aktif (W-KNN)
 │   ├── deteksi_scabies.py                       # Aktif (Decision Tree)
 │   ├── deteksi_pasien_treatment.py              # Placeholder
 │   ├── deteksi_jantung.py                       # Placeholder
 │   ├── deteksi_liver.py                         # Placeholder
 │   └── deteksi_lainnya.py                       # Placeholder
+├── utils/
+│   ├── __init__.py
+│   ├── preprocessing.py                         # Pipeline cardiovascular
+│   ├── models.py                                # Wrapper 5 model klasifikasi
+│   ├── ckd_pipeline.py                          # Pipeline ginjal kronik
+│   ├── diabetes_xgb.py                          # Pipeline diabetes (eksperimen)
+│   └── diabetes_xgb_praktikum.py                # Pipeline diabetes (praktikum)
 ├── utils/
 │   ├── __init__.py
 │   ├── preprocessing.py                         # Pipeline cardiovascular

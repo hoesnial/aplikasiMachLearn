@@ -51,6 +51,7 @@ pages = {
     "🩸 Deteksi Diabetes (Eksperimen)": "diabetes_exp",
     "💊 Deteksi Pasien Treatment": "pasien_treatment",
     "🏥 Deteksi Penyakit Scabies": "scabies",
+    "🧪 Deteksi Penyakit Ginjal Kronik": "ginjal_kronik",
     "❤️ Deteksi Penyakit Jantung": "jantung",
     "🫁 Deteksi Penyakit Liver": "liver",
     "📋 Deteksi Lainnya": "lainnya",
@@ -101,6 +102,9 @@ elif page_key == "pasien_treatment":
 elif page_key == "scabies":
     from pages import deteksi_scabies
     deteksi_scabies.show()
+elif page_key == "ginjal_kronik":
+    from pages import deteksi_ginjal_kronik
+    deteksi_ginjal_kronik.show()
 elif page_key == "jantung":
     from pages import deteksi_jantung
     deteksi_jantung.show()

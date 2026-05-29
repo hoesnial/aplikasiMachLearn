@@ -68,6 +68,14 @@ def show():
         """)
 
         st.markdown("""
+        #### 🧪 Penyakit Ginjal Kronik
+        Dataset: `penyakit_ginjal_kronik.csv` (400 pasien)
+        - Memprediksi CKD berbasis 24 fitur klinis (urin, darah, riwayat)
+        - Base method: **W-KNN (Weighted K-Nearest Neighbors)**
+        - **Status: ✅ Aktif**
+        """)
+
+        st.markdown("""
         #### ❤️ Penyakit Jantung
         Dataset: Heart Disease
         - Memprediksi risiko penyakit jantung
