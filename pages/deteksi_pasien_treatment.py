@@ -17,11 +17,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.metrics import (accuracy_score, confusion_matrix, classification_report,
                              roc_curve, auc, precision_score, recall_score, f1_score)
 from xgboost import XGBClassifier
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from imblearn.over_sampling import SMOTE
 
 # ─────────────────────────────────────────────────
 # DATA LOADING & PREPROCESSING
@@ -63,20 +64,42 @@ def preprocess(df):
     return X, y, df2
 
 @st.cache_resource
-def build_models(df):
+def preprocess_for_training(df):
+    """
+    Preprocessing khusus untuk training dengan scaling dan SMOTE balancing.
+    Tahap 1 Improvement:
+    - StandardScaler: Normalisasi fitur untuk konsistensi
+    - SMOTE: Balance kelas untuk mengatasi imbalance Outpatient vs Inpatient
+    """
     X, y, _ = preprocess(df)
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
-    )
-
+    
+    # 4. Feature Scaling (StandardScaler)
     scaler = StandardScaler()
-    X_train_sc = scaler.fit_transform(X_train)
-    X_test_sc  = scaler.transform(X_test)
+    X_scaled = scaler.fit_transform(X)
+    X_scaled = pd.DataFrame(X_scaled, columns=X.columns)
+    
+    # 5. Class Balancing dengan SMOTE (Synthetic Minority Oversampling Technique)
+    # Ini penting karena dataset mungkin imbalanced antara Rawat Jalan vs Rawat Inap
+    smote = SMOTE(random_state=42, k_neighbors=5)
+    X_balanced, y_balanced = smote.fit_resample(X_scaled, y)
+    
+    st.sidebar.info(f"📊 Data setelah SMOTE:\n• Original: {len(X)} samples\n• Balanced: {len(X_balanced)} samples")
+    
+    return X_balanced, y_balanced, scaler, X
+
+@st.cache_resource
+def build_models(df):
+    # Gunakan data yang sudah di-scale dan di-balance dengan SMOTE
+    X_balanced, y_balanced, scaler, X_original = preprocess_for_training(df)
+    
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_balanced, y_balanced, test_size=0.2, random_state=42, stratify=y_balanced
+    )
 
     models_config = {
         "Logistic Regression": {
             "model": LogisticRegression(random_state=42, max_iter=2000, class_weight="balanced"),
-            "use_scaler": True
+            "use_scaler": False  # ✅ Data sudah di-scale di preprocessing
         },
         "Decision Tree": {
             "model": DecisionTreeClassifier(
@@ -87,10 +110,10 @@ def build_models(df):
         },
         "Weighted KNN": {
             "model": KNeighborsClassifier(n_neighbors=7, weights="distance", metric="minkowski"),
-            "use_scaler": True
+            "use_scaler": False  # ✅ Data sudah di-scale di preprocessing
         },
-        "Random Forest": {
-            "model": RandomForestClassifier(
+        "Extra Trees": {
+            "model": ExtraTreesClassifier(
                 n_estimators=200, max_depth=15, min_samples_split=5, min_samples_leaf=2,
                 class_weight="balanced", random_state=42, n_jobs=-1
             ),
@@ -112,8 +135,8 @@ def build_models(df):
 
     for name, config in models_config.items():
         mdl = config["model"]
-        X_tr = X_train_sc if config["use_scaler"] else X_train.values
-        X_te = X_test_sc if config["use_scaler"] else X_test.values
+        X_tr = X_train.values if isinstance(X_train, pd.DataFrame) else X_train
+        X_te = X_test.values if isinstance(X_test, pd.DataFrame) else X_test
 
         mdl.fit(X_tr, y_train)
         y_pred = mdl.predict(X_te)
@@ -141,10 +164,10 @@ def build_models(df):
             "precision":precision_score(y_test, y_pred),
             "recall":   recall_score(y_test, y_pred),
             "f1":       f1_score(y_test, y_pred),
-            "use_scaler": config["use_scaler"]
+            "use_scaler": False
         }
 
-    return results, scaler, X, X_train, X_test, y_train, y_test
+    return results, scaler, X_original, X_train, X_test, y_train, y_test
 
 # ─────────────────────────────────────────────────
 # HELPER PLOTS
@@ -153,7 +176,7 @@ COLORS = {
     "Logistic Regression": "#0d6efd",
     "Decision Tree":       "#6610f2",
     "Weighted KNN":        "#0dcaf0",
-    "Random Forest":       "#20c997",
+    "Extra Trees":         "#20c997",
     "XGBoost":             "#fd7e14",
 }
 
@@ -373,7 +396,7 @@ def show():
             st.plotly_chart(fig_fi, use_container_width=True, key="tab2_lr_feat")
             st.dataframe(feat_imp.sort_values("Importance", ascending=False).set_index("Feature"), use_container_width=True)
             
-        elif selected_model_name in ["Decision Tree", "Random Forest", "XGBoost"]:
+        elif selected_model_name in ["Decision Tree", "Extra Trees", "XGBoost"]:
             feat_imp = pd.DataFrame({
                 "Feature": X.columns, 
                 "Importance": mdl_obj.feature_importances_
@@ -382,9 +405,9 @@ def show():
             if selected_model_name == "Decision Tree":
                 color_scale = "Purples"
                 title_text = "Decision Tree Feature Importance (Gini)"
-            elif selected_model_name == "Random Forest":
+            elif selected_model_name == "Extra Trees":
                 color_scale = "Greens"
-                title_text = "Random Forest Feature Importance (Gini)"
+                title_text = "Extra Trees Feature Importance"
             else:
                 color_scale = "Oranges"
                 title_text = "XGBoost Feature Importance (Gini)"
@@ -665,10 +688,10 @@ def show():
             - Non-parametrik, bisa menangkap pola kompleks
             - Lambat saat prediksi pada dataset besar
             
-            **Random Forest:**
+            **Extra Trees:**
             - Ensemble yang robust dan stabil
-            - Mengatasi overfitting dengan baik
-            - Feature importance akurat untuk data real-world
+            - Menggunakan banyak pohon acak untuk memperkuat generalisasi
+            - Biasanya lebih cepat dan tetap memberikan feature importance yang kuat
             
             **XGBoost:**
             - Performa tinggi untuk kompetisi dan production
