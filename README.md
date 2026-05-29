@@ -10,19 +10,11 @@ Halaman aktif saat ini:
 | ❤️ **Deteksi Penyakit Kardiovaskular** | `cardio_train.csv` (70.000 pasien) | **Extra Trees Classifier** |
 | 🩸 **Deteksi Diabetes (XGBoost)** | `diabetes_dataset.csv` | **XGBoost** |
 | 🩸 **Deteksi Diabetes (Eksperimen)** | `diabetes_dataset.csv` | XGBoost + analisis eksperimen |
+| 💊 **Deteksi Pasien Treatment** | `patient_treatment.csv` | **Logistic Regression** |
+| 🏥 **Deteksi Scabies** | `scabies-sapi-diperluas.csv` | **Decision Tree** |
 | 🧪 **Deteksi Penyakit Ginjal Kronik** | `penyakit_ginjal_kronik.csv` (400 pasien) | **W-KNN (Weighted KNN)** |
 
-Halaman aktif/dalam pengembangan tambahan:
-
-| Halaman | Status | Dataset |
-|---------|--------|---------|
-| 🏥 **Deteksi Scabies** | Decision Tree (Rahman) | `scabies-sapi-diperluas.csv` |
-| 💊 **Deteksi Pasien Treatment** | Placeholder | – |
-| ❤️ **Deteksi Penyakit Jantung** | Placeholder | – |
-| 🫁 **Deteksi Penyakit Liver** | Placeholder | – |
-| 📋 **Deteksi Lainnya** | Placeholder | – |
-
-Lihat
+Untuk panduan menambahkan halaman deteksi baru, lihat
 [Panduan Menambah Halaman Deteksi Baru](#-panduan-menambah-halaman-deteksi-baru-untuk-developer)
 di bawah.
 
@@ -36,6 +28,7 @@ aplikasiMachLearn/
 ├── Pembangunan_Model_Preprocessing.ipynb        # Notebook eksperimen Cardiovascular
 ├── Pembangunan_Model_Preprocessing_Decission_Tree.ipynb # Notebook eksperimen Scabies (Decision Tree)
 ├── Pembangunan_Model_Preprocessing_CKD_WKNN.ipynb # Notebook eksperimen Ginjal Kronik (W-KNN)
+├── LR_Pembangunan_Model_Preprocessing_PasienTreatment.ipynb # Notebook eksperimen Pasien Treatment (Logistic Regression)
 ├── xgboost_pembangunan_model_preprocessing.ipynb# Notebook eksperimen Diabetes
 ├── dataset/
 │   ├── cardio_train.csv                         # Cardiovascular dataset (70k baris)
@@ -53,22 +46,13 @@ aplikasiMachLearn/
 │   ├── deteksi_diabetes.py                      # Aktif (XGBoost eksperimen)
 │   ├── deteksi_diabetes_praktikum.py            # Aktif (XGBoost praktikum)
 │   ├── deteksi_ginjal_kronik.py                 # Aktif (W-KNN)
-│   ├── deteksi_scabies.py                       # Aktif (Decision Tree)
-│   ├── deteksi_pasien_treatment.py              # Placeholder
-│   ├── deteksi_jantung.py                       # Placeholder
-│   ├── deteksi_liver.py                         # Placeholder
-│   └── deteksi_lainnya.py                       # Placeholder
+│   ├── deteksi_pasien_treatment.py              # Aktif (Logistic Regression)
+│   └── deteksi_scabies.py                       # Aktif (Decision Tree)
 ├── utils/
 │   ├── __init__.py
 │   ├── preprocessing.py                         # Pipeline cardiovascular
 │   ├── models.py                                # Wrapper 5 model klasifikasi
 │   ├── ckd_pipeline.py                          # Pipeline ginjal kronik
-│   ├── diabetes_xgb.py                          # Pipeline diabetes (eksperimen)
-│   └── diabetes_xgb_praktikum.py                # Pipeline diabetes (praktikum)
-├── utils/
-│   ├── __init__.py
-│   ├── preprocessing.py                         # Pipeline cardiovascular
-│   ├── models.py                                # Wrapper 5 model klasifikasi
 │   ├── diabetes_xgb.py                          # Pipeline diabetes (eksperimen)
 │   └── diabetes_xgb_praktikum.py                # Pipeline diabetes (praktikum)
 └── scripts/
@@ -279,11 +263,9 @@ elif page_key == "<key>":
     deteksi_<nama>.show()
 ```
 
-Konvensi `key` adalah lowercase tanpa spasi (mis. `liver`, `jantung`,
-`stroke`). Halaman placeholder `pages/deteksi_jantung.py`,
-`deteksi_liver.py`, `deteksi_pasien_treatment.py`, dan
-`deteksi_lainnya.py` sudah ada — Anda bisa langsung **mengganti
-isinya** tanpa perlu edit `app.py`.
+Konvensi `key` adalah lowercase tanpa spasi (mis. `stroke`, `kanker`,
+`hepatitis`). Buat file baru di `pages/deteksi_<nama>.py` dan daftarkan
+di `app.py` mengikuti pola halaman aktif yang sudah ada.
 
 #### 5. (Opsional) Tambah model baru
 

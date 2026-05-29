@@ -38,7 +38,7 @@ def show():
     with col1:
         st.markdown("""
         #### ❤️ Deteksi Penyakit Kardiovaskular
-        Dataset: Cardiovascular Disease (`cardio_train.csv`, 70.000 pasien)
+        Dataset: `cardio_train.csv` (70.000 pasien)
         - Memprediksi risiko penyakit kardiovaskular berdasarkan umur,
           tekanan darah, kolesterol, BMI, dan gaya hidup
         - Base method: **Extra Trees Classifier**
@@ -46,55 +46,45 @@ def show():
         """)
 
         st.markdown("""
-        #### 🩸 Deteksi Diabetes XGBoost
-        Dataset: Diabetes Dataset
-        - Klasifikasi diabetes berbasis preprocessing otomatis dan XGBoost
+        #### 🩸 Deteksi Diabetes (XGBoost)
+        Dataset: `diabetes_dataset.csv`
+        - Klasifikasi diabetes dengan model XGBoost terlatih
+        - Base method: **XGBoost** (precomputed model)
         - **Status: ✅ Aktif**
-        """)
-
-        st.markdown("""
-        #### 💊 Pasien Treatment
-        Dataset: Patient Treatment
-        - Memprediksi kebutuhan treatment pasien
-        - **Status: 🔜 Segera**
         """)
 
     with col2:
         st.markdown("""
-        #### 🏥 Deteksi Scabies
-        Dataset: Scabies Data
-        - Analisis dan prediksi terkait scabies
-        - **Status: Status: ✅ Aktif***
-        """)
-
-        st.markdown("""
-        #### 🧪 Penyakit Ginjal Kronik
-        Dataset: `penyakit_ginjal_kronik.csv` (400 pasien)
-        - Memprediksi CKD berbasis 24 fitur klinis (urin, darah, riwayat)
-        - Base method: **W-KNN (Weighted K-Nearest Neighbors)**
+        #### 🩸 Deteksi Diabetes (Eksperimen)
+        Dataset: `diabetes_dataset.csv`
+        - Eksperimen 60 kombinasi preprocessing + XGBoost
+        - Base method: **XGBoost**
         - **Status: ✅ Aktif**
         """)
 
         st.markdown("""
-        #### ❤️ Penyakit Jantung
-        Dataset: Heart Disease
-        - Memprediksi risiko penyakit jantung
-        - **Status: 🔜 Segera**
+        #### 💊 Deteksi Pasien Treatment
+        Dataset: `patient_treatment.csv`
+        - Memprediksi kebutuhan treatment pasien
+        - Base method: **Logistic Regression**
+        - **Status: ✅ Aktif**
         """)
 
     with col3:
         st.markdown("""
-        #### 🫁 Penyakit Liver
-        Dataset: Liver Disease
-        - Memprediksi risiko penyakit liver
-        - **Status: 🔜 Segera**
+        #### 🏥 Deteksi Scabies
+        Dataset: `scabies-sapi-diperluas.csv`
+        - Klasifikasi scabies pada sapi
+        - Base method: **Decision Tree**
+        - **Status: ✅ Aktif**
         """)
 
         st.markdown("""
-        #### 📋 Lainnya
-        Dataset: TBD
-        - Halaman deteksi tambahan
-        - **Status: 🔜 Segera**
+        #### 🧪 Deteksi Penyakit Ginjal Kronik
+        Dataset: `penyakit_ginjal_kronik.csv` (400 pasien)
+        - Memprediksi CKD berbasis 24 fitur klinis (urin, darah, riwayat)
+        - Base method: **W-KNN (Weighted K-Nearest Neighbors)**
+        - **Status: ✅ Aktif**
         """)
 
     st.markdown("---")

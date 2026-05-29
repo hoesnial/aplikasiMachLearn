@@ -52,9 +52,6 @@ pages = {
     "💊 Deteksi Pasien Treatment": "pasien_treatment",
     "🏥 Deteksi Penyakit Scabies": "scabies",
     "🧪 Deteksi Penyakit Ginjal Kronik": "ginjal_kronik",
-    "❤️ Deteksi Penyakit Jantung": "jantung",
-    "🫁 Deteksi Penyakit Liver": "liver",
-    "📋 Deteksi Lainnya": "lainnya",
 }
 
 selected_page = st.sidebar.radio(
@@ -105,12 +102,3 @@ elif page_key == "scabies":
 elif page_key == "ginjal_kronik":
     from pages import deteksi_ginjal_kronik
     deteksi_ginjal_kronik.show()
-elif page_key == "jantung":
-    from pages import deteksi_jantung
-    deteksi_jantung.show()
-elif page_key == "liver":
-    from pages import deteksi_liver
-    deteksi_liver.show()
-elif page_key == "lainnya":
-    from pages import deteksi_lainnya
-    deteksi_lainnya.show()
