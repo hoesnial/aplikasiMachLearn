@@ -52,9 +52,6 @@ pages = {
     "💊 Deteksi Pasien Treatment": "pasien_treatment",
     "🏥 Deteksi Penyakit Scabies": "scabies",
     "🧪 Deteksi Penyakit Ginjal Kronik": "ginjal_kronik",
-    "❤️ Deteksi Penyakit Jantung": "jantung",
-    "🫁 Deteksi Penyakit Liver": "liver",
-    "📋 Deteksi Lainnya": "lainnya",
 }
 
 selected_page = st.sidebar.radio(
@@ -76,9 +73,8 @@ st.sidebar.markdown("""
 1. Logistic Regression
 2. Decision Tree
 3. Extra Trees (Cardiovascular)
-4. Random Forest (Diabetes)
-5. W-KNN (Weighted KNN)
-6. XGBoost
+4. W-KNN (Weighted KNN)
+5. XGBoost (Diabetes)
 """)
 
 # Routing halaman
@@ -105,12 +101,3 @@ elif page_key == "scabies":
 elif page_key == "ginjal_kronik":
     from pages import deteksi_ginjal_kronik
     deteksi_ginjal_kronik.show()
-elif page_key == "jantung":
-    from pages import deteksi_jantung
-    deteksi_jantung.show()
-elif page_key == "liver":
-    from pages import deteksi_liver
-    deteksi_liver.show()
-elif page_key == "lainnya":
-    from pages import deteksi_lainnya
-    deteksi_lainnya.show()
