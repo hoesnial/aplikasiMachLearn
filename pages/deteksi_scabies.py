@@ -6,7 +6,7 @@ import plotly.express as px
 
 # Import Model-Model Machine Learning
 from sklearn.tree import DecisionTreeClassifier, export_text
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.ensemble import ExtraTreesClassifier, GradientBoostingClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
@@ -128,7 +128,7 @@ def prepare_and_train(_df):
 def train_comparison_models(_X_train, _X_test, _y_train, _y_test):
     models = {
         "Decision Tree 🌟": DecisionTreeClassifier(random_state=42, max_depth=5),
-        "Random Forest": RandomForestClassifier(random_state=42, max_depth=5, n_estimators=50),
+        "Extra Trees": ExtraTreesClassifier(random_state=42, max_depth=5, n_estimators=50),
         "Gradient Boosting": GradientBoostingClassifier(random_state=42, max_depth=3, n_estimators=50),
         "Logistic Regression": LogisticRegression(max_iter=1000, random_state=42),
         "SVM": SVC(random_state=42),
@@ -444,7 +444,7 @@ def show():
         st.markdown("### 📐 Metodologi Eksperimen (7 Model Komparasi)")
         st.markdown(
             "Eksperimen diperluas dengan membandingkan **7 algoritma Machine Learning** "
-            "(Decision Tree, Random Forest, Gradient Boosting, Logistic Regression, SVM, KNN, Naive Bayes). "
+            "(Decision Tree, Extra Trees, Gradient Boosting, Logistic Regression, SVM, KNN, Naive Bayes). "
             "Evaluasi ditekankan pada keseimbangan **Akurasi Tinggi** dan **Interpretabilitas Medis**."
         )
         
@@ -496,12 +496,12 @@ def show():
             st.markdown('<div class="insight-box"><b>Insight:</b> Dataset scabies lebih condong pada logika *rule-based* klinis sehingga pohon keputusan (Decision Tree) jauh lebih alami dibanding garis pemisah regresi linier.</div>', unsafe_allow_html=True)
             st.markdown("**Penjelasan:** Logistic regression mengukur bobot setiap fitur secara independen, sedangkan Decision Tree mengevaluasi fitur secara kondisional (tergantung hasil fitur sebelumnya).")
 
-        with st.expander("🧠 Decision Tree vs Random Forest & Ensemble (XGBoost)"):
-            st.markdown("- **Random Forest** membangun puluhan/ratusan pohon secara paralel (*ensemble*), membuat akurasinya seringkali naik 1-3%.")
+        with st.expander("🧠 Decision Tree vs Extra Trees & Ensemble (XGBoost)"):
+            st.markdown("- **Extra Trees** (Extremely Randomized Trees) membangun puluhan/ratusan pohon secara paralel dengan split acak (*ensemble*), membuat akurasinya seringkali naik 1-3%.")
             st.markdown("- Namun, hasil prediksinya menjadi **Black-Box** (sulit dilacak alur logikanya).")
             st.markdown("- **Decision Tree** (Single Tree) mengorbankan margin akurasi kecil demi 100% transparansi alur diagnosis medis.")
-            st.markdown('<div class="insight-box"><b>Insight:</b> Untuk deployment di klinik peternakan, kepercayaan dokter (berasal dari <i>interpretabilitas</i>) jauh lebih penting dari akurasi yang sekadar beda persentase desimal. Overkill menggunakan Random Forest pada dataset ini.</div>', unsafe_allow_html=True)
-            st.markdown("**Penjelasan:** Random forest melakukan agregat (voting) dari banyak pohon acak. Walaupun sangat robust, *trade-off*-nya adalah pengguna tidak bisa lagi menggambar satu pohon logika yang dapat divalidasi secara medis.")
+            st.markdown('<div class="insight-box"><b>Insight:</b> Untuk deployment di klinik peternakan, kepercayaan dokter (berasal dari <i>interpretabilitas</i>) jauh lebih penting dari akurasi yang sekadar beda persentase desimal. Overkill menggunakan Extra Trees pada dataset ini.</div>', unsafe_allow_html=True)
+            st.markdown("**Penjelasan:** Extra Trees melakukan agregat (voting) dari banyak pohon dengan split acak. Walaupun sangat robust, *trade-off*-nya adalah pengguna tidak bisa lagi menggambar satu pohon logika yang dapat divalidasi secara medis.")
 
         with st.expander("🧠 Decision Tree vs KNN"):
             st.markdown("- **KNN** sensitif terhadap fungsi jarak Euclidean. Fitur kategorial (YA=1, TIDAK=0) seringkali menjadi bias jika tidak diatur metrik jaraknya.")
