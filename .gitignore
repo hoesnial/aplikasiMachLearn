@@ -21,3 +21,10 @@ Thumbs.db
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Archives (jangan commit arsip build ke repo)
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
