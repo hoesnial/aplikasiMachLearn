@@ -39,8 +39,12 @@ from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold, cross_v
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
-from imblearn.over_sampling import SMOTE
-from imblearn.pipeline import Pipeline as ImbPipeline
+try:
+    from imblearn.over_sampling import SMOTE
+    from imblearn.pipeline import Pipeline as ImbPipeline
+except ImportError:  # pragma: no cover - optional dependency
+    SMOTE = None  # type: ignore[assignment]
+    ImbPipeline = Pipeline  # type: ignore[assignment]
 
 try:
     from xgboost import XGBClassifier
@@ -107,7 +111,7 @@ def validate_uploaded_file(filename: str | None) -> None:
 
 def split_feature_types(X: pd.DataFrame) -> tuple[list[str], list[str]]:
     """Pisahkan kolom numerik dan kategorikal."""
-    categorical_columns = X.select_dtypes(include=["object", "category"]).columns.tolist()
+    categorical_columns = X.select_dtypes(include=["object", "category", "string"]).columns.tolist()
     numeric_columns = [column for column in X.columns if column not in categorical_columns]
     return numeric_columns, categorical_columns
 
@@ -289,11 +293,11 @@ def build_model_pipeline(
         raise ValueError(f"model_name tidak dikenal: {model_name}")
 
     steps: list[tuple[str, Any]] = [("preprocessor", preprocessor)]
-    if use_smote:
+    if use_smote and SMOTE is not None:
         steps.append(("smote", SMOTE(random_state=random_state)))
     steps.append(("model", model))
 
-    if use_smote:
+    if use_smote and SMOTE is not None:
         return ImbPipeline(steps=steps)
     return Pipeline(steps=steps)
 
@@ -459,10 +463,10 @@ def train_and_evaluate_model(
         raise ValueError(f"model_name tidak dikenal: {model_name}")
 
     steps: list[tuple[str, Any]] = [("preprocessor", preprocessor)]
-    if use_smote:
+    if use_smote and SMOTE is not None:
         steps.append(("smote", SMOTE(random_state=random_state)))
     steps.append(("model", model))
-    pipeline = ImbPipeline(steps=steps) if use_smote else Pipeline(steps=steps)
+    pipeline = ImbPipeline(steps=steps) if (use_smote and SMOTE is not None) else Pipeline(steps=steps)
 
     if model_name.lower() == "xgb":
         normalized_params = _normalize_xgb_params(model_params)
