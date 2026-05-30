@@ -73,9 +73,8 @@ st.sidebar.markdown("""
 1. Logistic Regression
 2. Decision Tree
 3. Extra Trees (Cardiovascular)
-4. Random Forest (Diabetes)
-5. W-KNN (Weighted KNN)
-6. XGBoost
+4. W-KNN (Weighted KNN)
+5. XGBoost (Diabetes)
 """)
 
 # Routing halaman

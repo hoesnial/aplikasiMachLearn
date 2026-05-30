@@ -100,15 +100,15 @@ def show():
         |----|-----------|-----------|
         | 1 | **Logistic Regression** | Model linear untuk klasifikasi biner |
         | 2 | **Decision Tree** | Model berbasis pohon keputusan |
-        | 3 | **Random Forest** | Ensemble dari banyak decision tree |
+        | 3 | **Extra Trees** | Ensemble pohon dengan split acak (base method Cardiovascular) |
         """)
 
     with methods_col2:
         st.markdown("""
         | No | Algoritma | Deskripsi |
         |----|-----------|-----------|
-        | 4 | **W-KNN** | KNN dengan bobot jarak (weighted) |
-        | 5 | **XGBoost** | Gradient boosting yang powerful |
+        | 4 | **W-KNN** | KNN dengan bobot jarak (base method Ginjal Kronik) |
+        | 5 | **XGBoost** | Gradient boosting (base method Diabetes) |
         """)
 
     st.markdown("---")
