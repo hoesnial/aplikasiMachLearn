@@ -16,6 +16,16 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.compose import ColumnTransformer
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, OrdinalEncoder, RobustScaler, StandardScaler
+
+try:
+    from imblearn.over_sampling import SMOTE
+    from imblearn.pipeline import Pipeline as ImbPipeline
+except ImportError:  # pragma: no cover - optional dependency
+    SMOTE = None  # type: ignore[assignment]
+    ImbPipeline = Pipeline  # type: ignore[assignment]
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -24,6 +34,7 @@ st.set_page_config(page_title="Deteksi Diabetes XGBoost", page_icon="🩸", layo
 from utils.diabetes_xgb_praktikum import (  # noqa: E402
     DATASET_PATH,
     MODEL_PATH,
+    build_model,
     build_preprocessor,
     evaluate_pipeline,
     get_best_model,
@@ -35,6 +46,7 @@ from utils.diabetes_xgb_praktikum import (  # noqa: E402
     validate_dataset,
     validate_uploaded_file,
 )
+from utils.models import AVAILABLE_MODELS, get_model, get_model_display_name  # noqa: E402
 
 
 @st.cache_data
@@ -66,6 +78,108 @@ def _safe_read_uploaded_dataset(uploaded_file) -> pd.DataFrame | None:
         return None
 
     return uploaded_df
+
+
+def _build_prediction_preprocessor(
+    numeric_columns: list[str],
+    categorical_columns: list[str],
+    scaling_method: str,
+    encoding: str,
+) -> ColumnTransformer:
+    numeric_steps: list[tuple[str, object]] = [("imputer", SimpleImputer(strategy="median"))]
+    if scaling_method == "standard":
+        numeric_steps.append(("scaler", StandardScaler()))
+    elif scaling_method == "minmax":
+        numeric_steps.append(("scaler", MinMaxScaler()))
+    elif scaling_method == "robust":
+        numeric_steps.append(("scaler", RobustScaler()))
+
+    if encoding == "onehot":
+        categorical_encoder: object = OneHotEncoder(handle_unknown="ignore", sparse_output=False)
+    else:
+        categorical_encoder = OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1)
+
+    return ColumnTransformer(
+        transformers=[
+            ("numeric", Pipeline(steps=numeric_steps), numeric_columns),
+            (
+                "categorical",
+                Pipeline(
+                    steps=[
+                        ("imputer", SimpleImputer(strategy="most_frequent")),
+                        ("encoder", categorical_encoder),
+                    ]
+                ),
+                categorical_columns,
+            ),
+        ],
+        remainder="drop",
+    )
+
+
+@st.cache_resource
+def _train_prediction_model(
+    dataframe: pd.DataFrame,
+    model_key: str,
+    scaling_method: str,
+    use_smote: bool,
+    knn_neighbors: int,
+) -> dict:
+    feature_columns = [column for column in dataframe.columns if column != "diabetes"]
+    numeric_columns, categorical_columns = split_feature_types(dataframe[feature_columns])
+
+    X = dataframe.drop(columns=["diabetes"])
+    y = dataframe["diabetes"].astype(int)
+
+    from sklearn.model_selection import train_test_split
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.2,
+        random_state=42,
+        stratify=y,
+    )
+
+    if model_key == "wknn":
+        model = get_model("wknn")
+        model.set_params(n_neighbors=knn_neighbors)
+        encoding = "onehot"
+    elif model_key == "xgboost":
+        positive_count = int((y_train == 1).sum())
+        negative_count = int((y_train == 0).sum())
+        scale_pos_weight = (negative_count / positive_count) if positive_count > 0 else 1.0
+        model = build_model(random_state=42, scale_pos_weight=scale_pos_weight)
+        encoding = "ordinal"
+    else:
+        model = get_model(model_key)
+        encoding = "onehot" if model_key == "logistic_regression" else "ordinal"
+
+    preprocessor = _build_prediction_preprocessor(
+        numeric_columns,
+        categorical_columns,
+        scaling_method=scaling_method,
+        encoding=encoding,
+    )
+
+    steps: list[tuple[str, object]] = [("preprocessor", preprocessor)]
+    if use_smote and SMOTE is not None:
+        steps.append(("smote", SMOTE(random_state=42)))
+    steps.append(("model", model))
+
+    pipeline = ImbPipeline(steps=steps) if (use_smote and SMOTE is not None) else Pipeline(steps=steps)
+    pipeline.fit(X_train, y_train)
+    metrics = evaluate_pipeline(pipeline, X_test, y_test)
+
+    return {
+        "pipeline": pipeline,
+        "metrics": metrics,
+        "model_key": model_key,
+        "model_name": get_model_display_name(model_key),
+        "scaling_method": scaling_method,
+        "use_smote": use_smote,
+        "knn_neighbors": knn_neighbors,
+    }
 
 
 def _dataset_tab(df: pd.DataFrame) -> None:
@@ -218,9 +332,11 @@ def _evaluation_tab(bundle: dict) -> None:
             st.dataframe(comparison_df, width="stretch", hide_index=True)
 
 
-def _prediction_tab(bundle: dict, df: pd.DataFrame) -> None:
+def _prediction_tab(bundle: dict, df: pd.DataFrame, prediction_model: dict) -> None:
     st.markdown("### 📝 Input Data Pasien")
-    st.markdown("Masukkan data pasien untuk memprediksi risiko diabetes menggunakan model XGBoost.")
+    st.markdown(
+        f"Masukkan data pasien untuk memprediksi risiko diabetes menggunakan model **{prediction_model['model_name']}**."
+    )
 
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -249,7 +365,10 @@ def _prediction_tab(bundle: dict, df: pd.DataFrame) -> None:
             "blood_glucose_level": blood_glucose_level,
         }
 
-        prediction, probability = predict_diabetes(bundle, input_data)
+        input_frame = pd.DataFrame([input_data])
+        pipeline = prediction_model["pipeline"]
+        prediction = int(pipeline.predict(input_frame)[0])
+        probability = pipeline.predict_proba(input_frame)[0]
         st.markdown("### 📋 Hasil Prediksi")
         if prediction == 1:
             st.error("⚠️ **Terdeteksi Risiko Diabetes**")
@@ -268,7 +387,13 @@ def _prediction_tab(bundle: dict, df: pd.DataFrame) -> None:
         with prob_col2:
             st.metric("Probabilitas Diabetes", f"{probability[1] * 100:.2f}%")
 
-        st.info(f"Model yang digunakan: **{best_model_name_from_bundle(bundle)}**")
+        st.info(
+            f"Model yang digunakan: **{prediction_model['model_name']}** | "
+            f"Scaling: **{prediction_model['scaling_method']}** | "
+            f"SMOTE: **{'Ya' if prediction_model['use_smote'] else 'Tidak'}**"
+        )
+        if prediction_model["model_key"] == "wknn":
+            st.caption(f"Jumlah tetangga (k): {prediction_model['knn_neighbors']}")
 
 
 def _analysis_tab(bundle: dict) -> None:
@@ -344,10 +469,70 @@ def show() -> None:
     df = uploaded_df if uploaded_df is not None else load_data()
     bundle = load_or_train_diabetes_model(apply_scaling=False, use_smote=False)
     best_model = get_best_model(bundle)
+    selected_prediction_df = bundle[best_model["best_result_key"]]["dataframe"]
+
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### ⚙️ Model Prediksi")
+
+    model_names = list(AVAILABLE_MODELS.keys())
+    default_model_index = model_names.index("XGBoost") if "XGBoost" in model_names else 0
+    selected_model_name = st.sidebar.selectbox(
+        "Pilih Model Klasifikasi:",
+        model_names,
+        index=default_model_index,
+        help="Pilih model yang dipakai untuk prediksi pasien baru.",
+    )
+    selected_model_key = AVAILABLE_MODELS[selected_model_name]
+
+    scaling_method = st.sidebar.selectbox(
+        "Metode Scaling:",
+        ["standard", "minmax", "robust"],
+        index=1,
+        help="Metode scaling untuk fitur numerik.",
+    )
+
+    use_smote = st.sidebar.checkbox(
+        "Terapkan SMOTE",
+        value=False,
+        help="Gunakan SMOTE jika ingin melakukan penyeimbangan data saat training model prediksi.",
+    )
+
+    sample_size = st.sidebar.slider(
+        "Ukuran sampel data (training)",
+        min_value=5000,
+        max_value=100000,
+        value=20000,
+        step=5000,
+        help="Membatasi data agar training tetap responsif saat memilih model prediksi.",
+    )
+
+    knn_neighbors = 5
+    if selected_model_key == "wknn":
+        knn_neighbors = st.sidebar.slider(
+            "Jumlah tetangga (k) untuk W-KNN",
+            min_value=1,
+            max_value=21,
+            value=5,
+            step=1,
+        )
+
+    with st.spinner(f"Menyiapkan model {selected_model_name}..."):
+        prediction_model = _train_prediction_model(
+            selected_prediction_df.sample(n=min(sample_size, len(selected_prediction_df)), random_state=42).reset_index(drop=True),
+            selected_model_key,
+            scaling_method,
+            use_smote,
+            knn_neighbors,
+        )
 
     st.sidebar.markdown("---")
     st.sidebar.markdown("### ⚙️ Ringkasan Model")
     st.sidebar.success(f"Model terbaik: {best_model['best_model_name']}")
+    st.sidebar.caption(f"Model prediksi aktif: {selected_model_name}")
+    st.sidebar.caption(f"Scaling: {scaling_method}")
+    st.sidebar.caption(f"SMOTE: {'Ya' if use_smote else 'Tidak'}")
+    if selected_model_key == "wknn":
+        st.sidebar.caption(f"k: {knn_neighbors}")
     st.sidebar.caption(f"Accuracy: {best_model['best_accuracy'] * 100:.2f}%")
     st.sidebar.caption(f"F1-score: {best_model['best_f1_score'] * 100:.2f}%")
     st.sidebar.caption(f"ROC AUC: {best_model['best_roc_auc'] * 100:.2f}%")
@@ -363,7 +548,7 @@ def show() -> None:
     ])
 
     with tab1:
-        _prediction_tab(bundle, df)
+        _prediction_tab(bundle, df, prediction_model)
 
     with tab2:
         _evaluation_tab(bundle)
